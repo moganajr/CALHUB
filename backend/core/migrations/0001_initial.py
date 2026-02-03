@@ -114,7 +114,29 @@ class Migration(migrations.Migration):
                 ("description", models.TextField()),
                 ("justification", models.TextField()),
                 ("degree_level", models.CharField(choices=[("BSC", "BSc"), ("MSC", "MSc"), ("PHD", "PhD")], max_length=8)),
+                ("is_quantitative", models.BooleanField(default=False)),
+                ("requires_variables", models.BooleanField(default=False)),
                 ("proposal", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="methodology_components", to="core.proposal")),
+            ],
+        ),
+        migrations.CreateModel(
+            name="Variable",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.CharField(max_length=120)),
+                ("operational_definition", models.TextField()),
+                ("measurement_scale", models.CharField(max_length=120)),
+                ("proposal", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="variables", to="core.proposal")),
+            ],
+        ),
+        migrations.CreateModel(
+            name="AnalysisPlan",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("description", models.TextField()),
+                ("justification", models.TextField()),
+                ("methodology_component", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="core.methodologycomponent")),
+                ("proposal", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="analysis_plans", to="core.proposal")),
             ],
         ),
         migrations.CreateModel(
@@ -210,6 +232,17 @@ class Migration(migrations.Migration):
                 ("blocking_issue", models.BooleanField(default=False)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("proposal", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="alignment_checks", to="core.proposal")),
+            ],
+        ),
+        migrations.CreateModel(
+            name="SupervisorPrompt",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("prompt_text", models.TextField()),
+                ("severity", models.CharField(choices=[("INFO", "Info"), ("WARNING", "Warning"), ("BLOCKING", "Blocking")], max_length=20)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("proposal", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="supervisor_prompts", to="core.proposal")),
+                ("related_question", models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="core.question")),
             ],
         ),
     ]

@@ -15,6 +15,7 @@ RDS is an academic infrastructure platform that enforces research rigor before a
 - **Alignment enforcement:** Alignment checks are stored as blocking or non-blocking events tied to proposals.
 - **Supervisor oversight:** Supervisor reviews are recorded with statuses and comments.
 - **Audit trail:** Versioning and export records capture snapshots and compliance statements.
+- **Guardrails:** Methodology guardrails require variables for quantitative designs and enforce analysis plans.
 
 ## Repository layout
 
@@ -47,4 +48,4 @@ npm run start
 - AI-generated sections must reference student response IDs.
 - AI contributions are logged with model name, prompt, and input response IDs.
 - Quality scores and Defense Readiness Index are computed and auditable.
-
+- Supervisor prompts surface blocking examiner-style feedback when critical gaps remain.

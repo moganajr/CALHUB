@@ -25,6 +25,14 @@ const SupervisorDashboard = () => (
         <p>39%</p>
       </div>
     </div>
+    <div className="prompt-list">
+      <h3>Supervisor Prompts</h3>
+      <ul>
+        <li>Where is the empirical gap articulated?</li>
+        <li>How are quantitative variables operationalized?</li>
+        <li>Why is this research design appropriate?</li>
+      </ul>
+    </div>
   </section>
 );
 

@@ -52,6 +52,21 @@ class ProposalSection(models.Model):
         unique_together = ("proposal", "name")
         ordering = ["order"]
 
+    def update_completeness(self) -> None:
+        required_questions = self.questions.filter(is_required=True, parent__isnull=True)
+        required_count = required_questions.count()
+        if required_count == 0:
+            self.completeness_score = 0
+            self.is_locked = True
+            return
+        answered_required = StudentResponse.objects.filter(
+            proposal=self.proposal,
+            question__in=required_questions,
+        ).exclude(response_text="").count()
+        score = (answered_required / required_count) * 100
+        self.completeness_score = score
+        self.is_locked = score < float(self.completeness_threshold)
+
 
 class Question(models.Model):
     section = models.ForeignKey(ProposalSection, on_delete=models.CASCADE, related_name="questions")
@@ -112,6 +127,26 @@ class MethodologyComponent(models.Model):
     description = models.TextField()
     justification = models.TextField()
     degree_level = models.CharField(max_length=8, choices=DegreeLevel.choices)
+    is_quantitative = models.BooleanField(default=False)
+    requires_variables = models.BooleanField(default=False)
+
+    def clean(self) -> None:
+        if self.is_quantitative and self.requires_variables and not self.proposal.variables.exists():
+            raise ValidationError("Quantitative designs require at least one defined variable.")
+
+
+class Variable(models.Model):
+    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE, related_name="variables")
+    name = models.CharField(max_length=120)
+    operational_definition = models.TextField()
+    measurement_scale = models.CharField(max_length=120)
+
+
+class AnalysisPlan(models.Model):
+    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE, related_name="analysis_plans")
+    methodology_component = models.ForeignKey(MethodologyComponent, on_delete=models.CASCADE)
+    description = models.TextField()
+    justification = models.TextField()
 
 
 class GeneratedSection(models.Model):
@@ -195,4 +230,18 @@ class AlignmentCheck(models.Model):
     status = models.CharField(max_length=20)
     details = models.TextField()
     blocking_issue = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SupervisorPrompt(models.Model):
+    SEVERITY_LEVELS = (
+        ("INFO", "Info"),
+        ("WARNING", "Warning"),
+        ("BLOCKING", "Blocking"),
+    )
+
+    proposal = models.ForeignKey(Proposal, on_delete=models.CASCADE, related_name="supervisor_prompts")
+    prompt_text = models.TextField()
+    severity = models.CharField(max_length=20, choices=SEVERITY_LEVELS)
+    related_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

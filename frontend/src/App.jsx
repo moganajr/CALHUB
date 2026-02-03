@@ -2,6 +2,7 @@ import React from "react";
 
 import AlignmentGate from "./components/AlignmentGate.jsx";
 import CompletenessGate from "./components/CompletenessGate.jsx";
+import QualityDashboard from "./components/QualityDashboard.jsx";
 import SupervisorDashboard from "./pages/SupervisorDashboard.jsx";
 import StudentWorkspace from "./pages/StudentWorkspace.jsx";
 
@@ -17,6 +18,7 @@ const App = () => (
         <CompletenessGate />
         <AlignmentGate />
       </section>
+      <QualityDashboard />
       <SupervisorDashboard />
     </main>
   </div>
